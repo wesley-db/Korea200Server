@@ -5,7 +5,7 @@ export async function translate(url, key, kWord) {
     //const encoder = new TextEncoder();//To ensure the kWord is UTF-8 encoded
     const reqIDs = `${url}search?key=${key}&translated=y&trans_lang=1&q=${kWord}`;
 
-    /*Get IDs & translation info*/
+    /*Get IDs then translation info*/
     const reqTrans = await fetch(reqIDs)
         .then(resp => resp.text())
         .then(resp => {
@@ -20,15 +20,15 @@ export async function translate(url, key, kWord) {
             );
         }).catch(err => {
             console.error(err);
-            return false;
+            return err;
         }
     );
-
+    
     /*Reformat the translation info into a js object*/
-    return await Promise.all(reqTrans)
+    return await Promise.all(reqTrans || [])
         .then(resp => {
-            if (!resp[0].getElementsByTagName("item")[0])
-                return false
+            if (resp.length === 0 || !resp[0].getElementsByTagName("item")[0])
+                return [];
 
             //extract the 단어
             //extract id
@@ -63,6 +63,9 @@ export async function translate(url, key, kWord) {
                 );
             });
             return itemList;
-        }).catch(err => console.error(err));  
+        }).catch(err => {
+            console.error(err);
+            return err;
+        });  
 }
         

@@ -42,18 +42,19 @@ async function connect2Mongo() {
 }
 /*<----------------------------------------------------------->*/
 
-app.get("/search", async (req, resp) => {
+app.get("/translate", async (req, resp) => {
     const kWord = req.query.kWord;
 
     let statusCode;
     let message;
-    try {
-        if (!kWord)
-            statusCode = 400, message = "param 'kWord' is not given.";
-        else
+    if (!kWord)
+        statusCode = 400, message = "param 'kWord' is not given.";
+    else {
+        try {
             statusCode = 200, message = await transl.translate(apiUrl, apiKey, kWord);
-    } catch (e) {
-        statusCode = 500, message = e.message;
+        } catch (e) {
+            statusCode = 500, message = e.message;
+        }
     }
 
     resp.status(statusCode).json({message: message});
@@ -97,18 +98,19 @@ app.post("/savingWord", async (req, resp) => {
     resp.status(statusCode).json({message: message});
 });
 
-app.get("/getSavedWord", async (req, resp) => {
+app.get("/searchUserData", async (req, resp) => {
     const name = req.query.name;
 
     let statusCode;
     let message;
-    try {
-        if (!name)
-            statusCode = 400, message = "param 'name' is not given.";
-        else
+    if (!name)
+        statusCode = 400, message = "param 'name' is not given.";
+    else {
+        try {
             statusCode = 200, message = await client.db(db).collection(coll).find({name: name}).toArray();    
-    } catch(e) {
-        statusCode = 500, message = e.message;
+        } catch(e) {
+            statusCode = 500, message = e.message;
+        }
     }
 
     resp.status(statusCode).json({message: message});
